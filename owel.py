@@ -139,7 +139,6 @@ class Watcher(object):
 		self.dirs = {}
 		self.log = Log()
 		self.running = False
-		self.hidden = False
 
 
 	def register(self, *args):
@@ -205,19 +204,12 @@ class Watcher(object):
 	def __process_dir(self, dpath):
 		""" Helper function to get files in the dir """
 
-		if self.hidden:
-			cur_files = [ff for ff in os.listdir(dpath)]
-		else:
-			cur_files = [ff for ff in os.listdir(dpath) \
-						if not ff.startswith('.')]
+		cur_files = [(dpath+'/'+ff) for ff in os.listdir(dpath)]
+		#else:
+		#	cur_files = [ff for ff in os.listdir(dpath) \
+		#				if not ff.startswith('.')]
 
 		return cur_files
-
-
-	def enable_hidden(self, hidden=True):
-		""" Enable hidden files monitoring """
-
-		self.hidden = hidden
 
 
 	def run(self):
@@ -243,5 +235,4 @@ class Watcher(object):
 
 watch = Watcher()
 watch.register('/home/mgalalen/Desktop/Learn')
-watch.enable_hidden()
 watch.run()
