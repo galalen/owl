@@ -133,7 +133,7 @@ class File(object):
 		return self.filepath
 
 
-class Owel(object):
+class Owl(object):
 	"""
 		Watch for event that happend to files or dirs
 	""" 
@@ -240,7 +240,7 @@ parser.add_argument("-f", "--files", help="Add files and folders to list", nargs
 args = parser.parse_args()
 
 if args.files:
-	owel = Owel()
+	owl = Owl()
 	for f in args.files[0]:
-		owel.register(f)
-	owel.run()
+		owl.register(f)
+	owl.run()
