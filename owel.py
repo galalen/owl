@@ -1,11 +1,13 @@
 import os
 import time
 import datetime
+import argparse
 
 try:
 	from colorama import init, Fore
 except:
 	print("colorama dependency it's not installed")
+	print("pip install colorama\n")
 
 
 __VERSION__ = '1.0'
@@ -74,7 +76,7 @@ class Log(object):
 
 
 class File(object):
-	"""  File and helper function to manipluate data """
+	""" File and helper function to manipluate data """
 
 	def __init__(self, filepath):
 		self.filepath = filepath
@@ -129,14 +131,13 @@ class File(object):
 		return self.filepath
 
 
-class Watcher(object):
+class Owel(object):
 	"""
 		Watch for event that happend to files or dirs
 	""" 
 
 	def __init__(self):
 		self.files = {}
-		self.dirs = {}
 		self.log = Log()
 		self.running = False
 
@@ -177,9 +178,9 @@ class Watcher(object):
 			self.files[str(fdata)] = fdata.get_created()
 
 				
-	def __check_event(self):
-		""" Help function that check event on files """
-
+	def start_watching(self):
+		""" Check event on files """
+		
 		for f in self.files.keys():
 			if os.path.exists(f):
 				fdata = File(f)
@@ -191,6 +192,8 @@ class Watcher(object):
 				self.log.log(f, EventType.DELETED, datetime.datetime.now())
 				del self.files[f]
 
+		
+				
 		# Check for addition
 		for fdir in self.dirs.keys():
 			cur_files = self.__process_dir(fdir)
@@ -214,13 +217,13 @@ class Watcher(object):
 
 	def run(self):
 		""" Start monitoring files or dirs"""
-
-		print('Watching:')
-		print len(self.files)
+		
+		print('Watching: %d files' % len(self.files))
 		print(self.files.keys())
 		self.running = True
 		while self.running:
-			self.__check_event()
+			self.start_watching()
+
 
 
 	def stop(self, clear=False):
@@ -233,6 +236,13 @@ class Watcher(object):
 
 
 
-watch = Watcher()
-watch.register('/home/mgalalen/Desktop/Learn')
-watch.run()
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-f", "--files", help="print something", nargs='+', action="append", required=True)
+args = parser.parse_args()
+
+if args.files:
+	owel = Owel()
+	for f in args.files[0]:
+		owel.register(f)
+	owel.run()
