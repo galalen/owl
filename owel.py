@@ -1,3 +1,5 @@
+# /usr/bin/env python
+
 import os
 import time
 import datetime
@@ -138,6 +140,7 @@ class Owel(object):
 
 	def __init__(self):
 		self.files = {}
+		self.dirs = {}
 		self.log = Log()
 		self.running = False
 
@@ -170,12 +173,21 @@ class Owel(object):
 					print(log_msg)
 
 
-
 	def __add_file(self, fdata):
 		""" Helper function for adding files to dict """
 
 		if not str(fdata) in self.files.keys():
 			self.files[str(fdata)] = fdata.get_created()
+
+
+
+	def __process_dir(self, dpath, hidden=False):
+		""" Helper function to get files in the dir """
+		if hidden:
+			return [ff for ff in os.listdir(dpath) \
+						if not ff.startswith('.')]
+
+		return [(dpath+'/'+ff) for ff in os.listdir(dpath)]
 
 				
 	def start_watching(self):
@@ -192,7 +204,6 @@ class Owel(object):
 				self.log.log(f, EventType.DELETED, datetime.datetime.now())
 				del self.files[f]
 
-		
 				
 		# Check for addition
 		for fdir in self.dirs.keys():
@@ -204,26 +215,15 @@ class Owel(object):
 					self.log.log(ff, EventType.CREATED, cur_f.get_created(formated=True))
 
 
-	def __process_dir(self, dpath):
-		""" Helper function to get files in the dir """
-
-		cur_files = [(dpath+'/'+ff) for ff in os.listdir(dpath)]
-		#else:
-		#	cur_files = [ff for ff in os.listdir(dpath) \
-		#				if not ff.startswith('.')]
-
-		return cur_files
-
-
 	def run(self):
 		""" Start monitoring files or dirs"""
 		
 		print('Watching: %d files' % len(self.files))
 		print(self.files.keys())
+		print('\n')
 		self.running = True
 		while self.running:
 			self.start_watching()
-
 
 
 	def stop(self, clear=False):
@@ -235,10 +235,8 @@ class Owel(object):
 			del self.files
 
 
-
-
 parser = argparse.ArgumentParser()
-parser.add_argument("-f", "--files", help="print something", nargs='+', action="append", required=True)
+parser.add_argument("-f", "--files", help="Add files and folders to list", nargs='+', action="append", required=True)
 args = parser.parse_args()
 
 if args.files:
